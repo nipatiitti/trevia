@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "trevia",
+    "description": "New type of social media for people who like to be outside",
+    "slug": "trevia",
+    "privacy": "unlisted",
+    "sdkVersion": "20.0.0",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "primaryColor": "#cccccc",
+    "icon": "./assets/icons/app-icon.png",
+    "loading": {
+      "icon": "./assets/icons/loading-icon.png",
+      "hideExponentText": false
+    },
+    "android": {
+      "package": "com.Trevia.TrevaApp"
+    },
+    "packagerOpts": {
+      "assetExts": ["ttf", "mp4"]
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.Trevia.TrevaApp",
+      "supportsTablet": false
+    }
+  }
+}

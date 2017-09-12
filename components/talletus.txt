@@ -1,0 +1,91 @@
+{
+		"title"	: 	"ideat loppuu",
+		"coordinates" : {
+			"latitude"	: 	60.446023,
+			"longitude"	: 	22.203477,
+		},
+		"color" : "yellow",
+		"laji" :  "biking",
+	},
+	{
+		"title"	: 	"Shiiet",
+		"coordinates" : {
+			"latitude"	: 	60.471160,
+			"longitude"	: 	22.301289,
+		},
+		"color" : "green",
+		"laji" :  "hiking",
+	},
+	{
+		"title"	: 	"abd",
+		"coordinates" : {
+			"latitude"	: 	60.474160,
+			"longitude"	: 	23.301289,
+		},
+		"color" : "red",
+		"laji" : "hiking",
+	},
+	{
+		"title"	: 	"enntten",
+		"coordinates" : {
+			"latitude"	: 	45.471160,
+			"longitude"	: 	22.301299,
+		},
+		"color" : "orange",
+		"laji" :  "paddling",
+	},
+	{
+		"title"	: 	"asdsaf",
+		"coordinates" : {
+			"latitude"	: 	-60.471160,
+			"longitude"	: 	-22.301289,
+		},
+		"color" : "yellow",
+		"laji" :  "biking",
+	},
+	{
+		"title"	: 	"random",
+		"coordinates" : {
+			"latitude"	: 	56.471160,
+			"longitude"	: 	24.301289,
+		},
+		"color" : "green",
+		"laji" :  "hiking",
+	},
+	{
+		"title"	: 	"taki",
+		"coordinates" : {
+			"latitude"	: 	60.471160,
+			"longitude"	: 	22.201289,
+		},
+		"color" : "orange",
+		"laji" :  "paddling",
+	},
+	{
+		"title"	: 	"ja ta",
+		"coordinates" : {
+			"latitude"	: 	34.471160,
+			"longitude"	: 	-22.301289,
+		},
+		"color" : "cyan",
+		"laji" :  "ski",
+	},
+	{
+		"title"	: 	"lol",
+		"coordinates" : {
+			"latitude"	: 	34.471160,
+			"longitude"	: 	-22.301289,
+		},
+		"color" : "green",
+		"laji" :  "hiking",
+	},
+	{
+		"title"	: 	"data on point",
+		"coordinates" : {
+			"latitude"	: 	34.471160,
+			"longitude"	: 	-22.301289,
+		},
+		"color" : "blue",
+		"laji" : "jogging",
+	},
+]
