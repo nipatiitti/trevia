@@ -9,17 +9,14 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   ActivityIndicator,
-  Dimensions
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
-import styles from './baseStyles.js';
-import firebaseApp from './firebase.js';
-import { NavigationActions } from 'react-navigation'
+import styles from '../components/baseStyles.js';
+import firebaseApp from '../components/firebase.js';
+import { NavigationActions } from 'react-navigation';
 
 const backAction = NavigationActions.back();
-
-var { width, height } = Dimensions.get('window');
 
 export default class logIn extends Component {
 
@@ -65,7 +62,7 @@ export default class logIn extends Component {
             this.setState({
                 loading: false
             });
-            
+
             alert('Login Failed. Please try again');
         });
     }

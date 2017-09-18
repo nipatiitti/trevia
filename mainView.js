@@ -106,20 +106,22 @@ export default class mainView extends Component {
          		});
        		},
        		(error) => alert(error.message),
-     	{enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+     	{enableHighAccuracy: true, timeout: 1000, maximumAge: 1000}
     );
 
     this.watchID = navigator.geolocation.watchPosition(
     	(position) => {
     		this.setState({
-          			cords : {
-						      latitude: position.coords.latitude,
-            			longitude: position.coords.longitude,
+          cords : {
+					  latitude: position.coords.latitude,
+          	longitude: position.coords.longitude,
 					},
 					lat : position.coords.latitude,
-          			lon : position.coords.longitude,
-        		});
-    	});
+          lon : position.coords.longitude,
+        })
+      },
+      (error) => alert(error.message),
+      {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000, distanceFilter: 10 });
 
     this.props.navigation.setParams({
       buttonPress: this._touchHandler.bind(this)

@@ -14,7 +14,12 @@
       "hideExponentText": false
     },
     "android": {
-      "package": "com.Trevia.TrevaApp"
+      "package": "com.Trevia.TrevaApp",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDl5LWg2nJuyCDKXc3KA9h7cDQ0jKKTAV4"
+        }
+      }
     },
     "packagerOpts": {
       "assetExts": ["ttf", "mp4"]
