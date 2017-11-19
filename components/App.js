@@ -18,7 +18,6 @@ import { StackNavigator,
 import { Constants } from 'expo';
 
 import mainView from './components/screens/mainView';
-import mapView from './components/screens/mapView';
 import logIn from './components/screens/login';
 import signIn from './components/screens/signin';
 import settings from './components/screens/settings';
@@ -49,7 +48,6 @@ import madeByMe from './components/screens/madeByMe';
 
 const TreviaApp = StackNavigator({
 		Main: { screen: mainView },
-    Map: { screen: mapView },
 		Marker: { screen: markerView },
 		SignIn: { screen: signIn },
 		//Menu: { screen: menu },

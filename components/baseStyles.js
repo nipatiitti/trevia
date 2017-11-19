@@ -6,119 +6,118 @@ import React, {
 
 var { width, height } = Dimensions.get('window');
 
+const colors = {
+  white: "#FFF",
+  grey: "#ccc",
+  black: "#1e1e1e",
+  darkGrey: "#262626",
+}
+
 module.exports = StyleSheet.create({
-  container: {
-    alignItems: 'stretch',
-    flex: 1
+  container : {
+      flex            : 1,
+      flexDirection 	: 'column'
   },
 
-  body: {
-    flex: 9,
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'center',
-    backgroundColor: '#F5FCFF',
+  row : {
+      flex            : 1,
+      flexDirection 	: 'row'
   },
 
-  textInput: {
-    height: 40,
-    width: 200,
+  settingsButton: {
+    backgroundColor : colors.white,
+    margin          : 10,
+    justifyContent  : 'space-between',
+    alignItems      : 'center',
+    padding         : 10,
+  },
+
+  button: {
+    backgroundColor : colors.darkGrey,
+    margin          : 10,
+    marginHorizontal: 20,
+    justifyContent  : 'center',
+    alignItems      : 'center',
+    padding         : 10,
+    borderColor     : colors.darkGrey,
+    borderWidth     : 1,
+    borderRadius    : 5,
+  },
+
+  buttonText: {
+    color: colors.white
   },
 
   flex: {
     flex: 1,
   },
 
-  bubbleButton: {
-    padding: 10,
-    margin: 10,
-    borderRadius: 20,
-    borderColor: 'red',
-    borderWidth: 1,
-    backgroundColor: 'blue',
-    flex: 1,
-    justifyContent  : 'space-around'
+  flex2: {
+    flex: 2,
   },
 
-  button: {
-    backgroundColor   : '#FFF',
-    paddingVertical   : 15,
-    paddingHorizontal : 10,
-    flexDirection     : 'row',
-    marginBottom      : 10,
-    width: width,
-    height: height/7,
-    alignItems        : 'center',
-    justifyContent    : 'space-between'
+  text: {
+    color: colors.black,
   },
 
-  basicText: {
-    flex: 1,
-    color: 'black',
-    textAlign: 'left',
-    margin: 5,
-    fontSize: 18
+  textMiddle: {
+    textAlign: 'center',
   },
 
   textRight: {
     textAlign: 'right',
   },
 
-  transparentButton: {
-    marginTop: 10,
-    padding: 15
-  },
-
-  transparentButtonText: {
-    color: '#0485A9',
-    textAlign: 'center',
-    fontSize: 16
-  },
-
-  submitButton: {
+  margin: {
     margin: 10,
-    padding: 15,
-    borderColor: 'grey',
-    borderWidth: 1,
-    borderRadius: 5,
   },
 
-  primaryButton: {
-    margin: 10,
-    padding: 15,
-    backgroundColor: '#529ecc',
+  rowStyle : {
+      backgroundColor   : colors.white,
+      paddingVertical   : 15,
+      paddingHorizontal : 10,
+      borderBottomColor : colors.grey,
+      borderBottomWidth : 1,
+      flexDirection     : 'row',
+      flex              : 1,
+      alignItems        : 'center'
   },
 
-  textButton: {
-    margin: 2,
-    padding: 4,
-    backgroundColor: '#529ecc',
+  spaceBetween: {
+    justifyContent: 'space-between',
   },
 
-  mapButton: {
-    margin: 10,
-    padding: 15,
-    backgroundColor: '#529ecc',
-    flex: 1
+  spaceAround: {
+    justifyContent: 'space-around',
   },
 
-  iconButton: {
-    margin: 10,
-    height: 30,
-    marginTop: -35,
-    alignSelf: 'flex-end', 
+  spaceCenter: {
+    justifyContent: 'center',
   },
 
-  primaryButtonText: {
-    color: '#FFF',
-    textAlign: 'center',
-    fontSize: 18,
-    marginLeft: 20,
-    marginRight: 20
+  textInput: {
+    paddingVertical   : 15,
+    paddingHorizontal : 5,
+    margin            : 5,
+    backgroundColor   : colors.white,
   },
 
-  image: {
-    width: 100,
-    height: 100
-  }
+  roundBorder: {
+    borderColor       : colors.black,
+    borderWidth       : 1,
+    borderRadius      : 5,
+  },
+
+  bottom: {
+    position: 'absolute',
+    bottom: 0,
+  },
+
+  map: {
+    position      : 'absolute',
+    top           : 0,
+    left          : 0,
+    right         : 0,
+    bottom        : 0,
+  },
 });

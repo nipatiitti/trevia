@@ -1,18 +1,12 @@
 'use strict'
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
   ListView,
   TextInput,
   TouchableOpacity,
-  Alert,
-  ListViewDataSource,
-  InteractionManager, 
-  RefreshControl, 
-  Platform, 
   Image,
 } from 'react-native';
 
@@ -22,10 +16,9 @@ import firebaseApp from './firebase.js';
 export default class DynamicList extends Component {
 
     constructor(props) {
-
+        super(props);
         const userData = firebaseApp.auth().currentUser;
 
-        super(props);
         this.state = {
             dataSource  : new ListView.DataSource({
                 rowHasChanged : (row1, row2) => true
@@ -38,14 +31,12 @@ export default class DynamicList extends Component {
             climbing: require('../images/climbing.png'),
             paddling: require('../images/paddling.png'),
             ski: require('../images/ski.png'),
+            data: []
         }
     }
 
     componentDidMount() {
-        console.log("Initalaizing listView")
-        this.setState({
-            dataSource  : this.state.dataSource.cloneWithRows(this._sortByDistance())
-        });
+        this._refresh();
     }
 
     _refresh() {
@@ -55,15 +46,24 @@ export default class DynamicList extends Component {
         });
     }
 
+    componentWillReceiveProps(nextProps) {
+        if(JSON.stringify(this.props.data) !== JSON.stringify(nextProps.data))
+        {
+               this.setState(
+                 data
+               )
+        }
+    }
+
     _sortByDistance (){
         var _data = this.props.data.sort((a,b) => {
-            a = this.getDistance(   
+            a = this.getDistance(
                                     this.props.lat,
                                     this.props.lon,
                                     a.coordinates.latitude,
                                     a.coordinates.longitude
                                 );
-            b = this.getDistance(   
+            b = this.getDistance(
                                     this.props.lat,
                                     this.props.lon,
                                     b.coordinates.latitude,
@@ -82,22 +82,22 @@ export default class DynamicList extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
-			    <View 	style={styles.listView}>
-			    	<ListView
+          <View style={styles.container}>
+			       <View 	style={styles.listView}>
+			    	     <ListView
                         enableEmptySections={true}
                         dataSource={this.state.dataSource}
                         renderRow={this._renderRow.bind(this)}
                         renderHeader={this._renderHeader.bind(this)}
-                    />
-			    </View>
-            </View>
+                  />
+			       </View>
+          </View>
         );
     }
 
     _renderHeader(){
         const { navigate } = this.props.navigation;
-        const stuff = this.state.user ? 
+        const userIcon = this.state.user ?
                     <TouchableOpacity onPress = {()=> navigate('LogIn')} style = {styles.icon} >
                         <Text style = {styles.text}><Icon name="sign-in" size={30} color="black" /></Text>
                     </TouchableOpacity>
@@ -110,7 +110,7 @@ export default class DynamicList extends Component {
     	return(
     		<View style = {styles.container} >
                 <View style = {styles.container, {flexDirection: 'row-reverse'}}>
-                    {stuff}
+                    {userIcon}
                     <TouchableOpacity onPress = {()=> navigate('Add')} style = {styles.icon} >
                         <Text style = {styles.text}><Icon name="plus" size={30} color="black" /></Text>
                     </TouchableOpacity>
@@ -156,7 +156,7 @@ export default class DynamicList extends Component {
     _renderRow(rowData, sectionID, rowID) {
         return (
             <View style={styles.rowStyle}>
-                <TouchableOpacity 
+                <TouchableOpacity
                             style={styles.container, {flexDirection: 'row', backgroundColor: "white"}}
                             onPress={ () => {
                                 this.props.call(
@@ -171,7 +171,7 @@ export default class DynamicList extends Component {
                                             rowData.coordinates.latitude,
                                             rowData.coordinates.longitude
                                         )} km
-                    </Text> 
+                    </Text>
                 </TouchableOpacity>
             </View>
         );
@@ -180,13 +180,13 @@ export default class DynamicList extends Component {
     getDistance(lat1,lon1,lat2,lon2) {
       var R = 6371; // Radius of the earth in km
       var dLat = this.deg2rad(lat2-lat1);  // deg2rad below
-      var dLon = this.deg2rad(lon2-lon1); 
-      var a = 
+      var dLon = this.deg2rad(lon2-lon1);
+      var a =
         Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
         Math.sin(dLon/2) * Math.sin(dLon/2)
-        ; 
-      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        ;
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       var d = R * c; // Distance in km
       var y = Math.round(d*100)/100;
       return y;

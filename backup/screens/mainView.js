@@ -21,15 +21,36 @@ import firebaseApp from './components/firebase.js';
 var { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
 
-const LATITUDE = 60.4491;
-const LONGITUDE = 22.3027;
-
 const LATITUDE_DELTA = 0.01;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class mainView extends Component {
 	constructor(props) {
 	    super(props);
+
+      try {
+        const LATITUDE = await AsyncStorage.getItem('@trevia:latitude');
+        if (LATITUDE !== null){
+          console.log(value);
+        } else {
+          await AsyncStorage.setItem('@trevia:latitude', 0.0);
+          LATITUDE = 0.0;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      try {
+        const LONGITUDE = await AsyncStorage.getItem('@trevia:longitude');
+        if (LONGITUDE !== null){
+          console.log(value);
+        } else {
+          await AsyncStorage.setItem('@trevia:longitude', 0.0);
+          LONGITUDE = 0.0;
+        }
+      } catch (error) {
+        console.log(error);
+      }
 
 	    this.state = {
 	    	region: {
@@ -38,12 +59,10 @@ export default class mainView extends Component {
 			    latitudeDelta: LATITUDE_DELTA,
 			    longitudeDelta: LONGITUDE_DELTA
 			  },
-  			cords : {
-  				latitude: LATITUDE,
-  			  longitude: LONGITUDE,
-  			},
-  			lat : LATITUDE,
-  			lon : LONGITUDE,
+        cords: {
+          latitude: LATITUDE,
+          longitude: LONGITUDE
+        },
   			animation : new Animated.Value(),
   			text : "chevron-left",
   			open : false,
@@ -59,8 +78,6 @@ export default class mainView extends Component {
       };
 
     this.itemsRef = firebaseApp.database().ref('markers/');
-    this.data = [];
-
 	};
 
   static navigationOptions = {
@@ -75,38 +92,27 @@ export default class mainView extends Component {
   };
 
   componentDidMount() {
-    const params = {
-            right: (
-                <Button
-                    onPress={() => { () => this._touchHandler() }}
-                    title={"Save"}
-                />
-            ),
-        };
-
-    this.props.navigation.setParams(params);
-
-    this.listenForItems(this.itemsRef);
   	this.state.animation.setValue(0);
    	navigator.geolocation.getCurrentPosition(
-     		(position) => {
-       		this.setState({
-         			region: {
-             			latitude: position.coords.latitude,
-             			longitude: position.coords.longitude,
-             			latitudeDelta: LATITUDE_DELTA,
-             			longitudeDelta: LONGITUDE_DELTA
-           			},
-           			lat : position.coords.latitude,
-           			lon : position.coords.longitude,
-           			cords : {
-  					      latitude: position.coords.latitude,
-             			longitude: position.coords.longitude,
-  				}
-         		});
-       		},
-       		(error) => alert(error.message),
-     	{enableHighAccuracy: true, timeout: 1000, maximumAge: 1000}
+      (position) => {
+   		   this.setState({
+           region: {
+             latitude: position.coords.latitude,
+             longitude: position.coords.longitude,
+             latitudeDelta: LATITUDE_DELTA,
+             longitudeDelta: LONGITUDE_DELTA
+          },
+          cords: {
+            latitude: position.coords.latitude,
+          	longitude: position.coords.longitude,
+          }
+        });
+      },
+      (error) => {
+        alert("Can't get location")
+        console.log(error.message);
+      },
+      {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000}
     );
 
     this.watchID = navigator.geolocation.watchPosition(
@@ -116,22 +122,17 @@ export default class mainView extends Component {
 					  latitude: position.coords.latitude,
           	longitude: position.coords.longitude,
 					},
-					lat : position.coords.latitude,
-          lon : position.coords.longitude,
         })
       },
       (error) => alert(error.message),
       {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000, distanceFilter: 10 });
-
-    this.props.navigation.setParams({
-      buttonPress: this._touchHandler.bind(this)
-    });
-
  	}
 
  	componentWillUnmount() {
    	navigator.geolocation.clearWatch(this.watchID);
     this.itemsRef.off();
+    await AsyncStorage.setItem('@trevia:longitude', this.state.cords.longitude);
+    await AsyncStorage.setItem('@trevia:latitude', this.state.cords.latitude);
   };
 
   onRegionChange(region) {
@@ -141,9 +142,9 @@ export default class mainView extends Component {
   onTouchChange(lat, long) {
    	this.setState({
          			region: {
-           			latitude: lat ,
+           			latitude: lat,
            			longitude: long,
-           			latitudeDelta: 0.1,
+           			latitudeDelta: this.state.region.latitudeDelta,
            			longitudeDelta: LATITUDE_DELTA * ASPECT_RATIO
          			}});
    	this._closeSide();
@@ -168,7 +169,7 @@ export default class mainView extends Component {
   _closeSide(){
  		if (this.state.open) {
  			this.setState({ open : false,
-                       text : "chevron-left"});
+                      text : "chevron-left"});
  			this.state.animation.setValue(width/2);
   		Animated.timing(
 	  		this.state.animation,
@@ -198,8 +199,8 @@ export default class mainView extends Component {
      return deg * (Math.PI/180)
   }
 
-  listenForItems(itemsRef) {
-     itemsRef.on('value', (snap) => {
+  listenForItems() {
+     this.itemsRef.on('value', (snap) => {
        var items = [];
        snap.forEach((child) => {
          items.push({
@@ -216,11 +217,9 @@ export default class mainView extends Component {
            _key: child.key
          });
        });
-       this.data = items;
        this.setState({
         items: items
        })
-       console.log( "Fetched succesfully");
       });
    }
 
@@ -234,27 +233,27 @@ export default class mainView extends Component {
           	mapType="terrain"
           	style={styles.map}
           	region={this.state.region}
-          	onRegionChange={this.onRegionChange.bind(this)}
+          	onRegionChange={(region) => this.onRegionChange(region)}
           	onPress={() => this._closeSide()}
         >
 
         	<MapView.Marker
-			  	coordinate={this.state.cords}
-			  	image={require('./images/locationmarker.png')}
+			  	    coordinate={this.state.cords}
+			  	    image={require('./images/locationmarker.png')}
 			    />
 
-				    {this.state.items.map(marker => (
-   				    <MapView.Marker
-   				    	  key={marker._key}
-   				      	coordinate={marker.coordinates}
-                  onPress={() => navigate('Marker', { info: marker, distance: this.getDistance(  this.state.cords.latitude,
-                                                                                                   this.state.cords.longitude,
-                                                                                                   marker.coordinates.latitude,
-                                                                                                   marker.coordinates.longitude
-                                                                                               )})}
-   				      	image = {this.state[marker.laji]}
-               />
-			      ))}
+          {this.state.items.map(marker => (
+            <MapView.Marker
+              key={marker._key}
+   				    coordinate={marker.coordinates}
+              onPress={() => navigate('Marker', { info: marker, distance: this.getDistance(  this.state.cords.latitude,
+                                                                                             this.state.cords.longitude,
+                                                                                             marker.coordinates.latitude,
+                                                                                             marker.coordinates.longitude
+                                                    )})}
+   				    image = {this.state[marker.laji]}
+            />
+			    ))}
         </MapView>
 
 	      <View style={styles.bubble}>
@@ -266,21 +265,21 @@ export default class mainView extends Component {
 		    <Animated.View
           style={[styles.list, {width : this.state.animation}]}
 	      >
-	    	<DynamicList
-          lat={this.state.lat}
-	    		lon={this.state.lon}
-	    		styles={styles.list}
-	    		call={this.onTouchChange.bind(this)}
-	    		data={this.state.items}
-          navigation={this.props.navigation}
-	    	/>
-	    </Animated.View>
+  	    	<DynamicList
+            lat={this.state.cords.latitude}
+  	    		lon={this.state.cords.longitude}
+  	    		styles={styles.list}
+  	    		call={(lat, long) => this.onTouchChange(lat, long)}
+  	    		data={this.state.items}
+            navigation={this.props.navigation}
+  	    	/>
+	      </Animated.View>
 
-		  <Animated.View style={[styles.button, {right : this.state.animation}]}>
+		   <Animated.View style={[styles.button, {right : this.state.animation}]}>
 		    <TouchableOpacity onPress = {()=> this._touchHandler()} >
 	      	<Text style={{backgroundColor: 'transparent'}}><Icon name={this.state.text} size={30} color="black" /></Text>
 	      </TouchableOpacity>
-	      <TouchableOpacity onPress = {()=> this.onTouchChange(this.state.lat, this.state.lon)} >
+	      <TouchableOpacity onPress = {()=> this.onTouchChange(this.state.cords.latitude, this.state.cords.longitude)} >
            <Text style={{backgroundColor: 'transparent'}}><Icon name="location-arrow" size={30} color="black" /></Text>
          </TouchableOpacity>
 	    </Animated.View>
@@ -331,5 +330,4 @@ var styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 20,
   },
-
 });
