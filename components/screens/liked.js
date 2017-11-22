@@ -49,7 +49,7 @@ export default class liked extends Component {
             paddling: require('../../images/paddling.png'),
             ski: require('../../images/ski.png'),
         }
-        this.likedMarkes = firebaseApp.database().ref('markers/');
+        this.markers = firebaseApp.database().ref('markers/');
     }
 
     static navigationOptions = {
@@ -84,28 +84,25 @@ export default class liked extends Component {
         this.likedList.on('value', (snap) => {
             var items = [];
             snap.forEach((childVar) => {
-                var spesificMarker = this.likedMarkes.child(childVar.val().key);
+                var spesificMarker = this.markers.child(childVar.val().key);
                 spesificMarker.once('value', (superChild) => {
                     items.push({
-                            title: superChild.val().title,
-                            coordinates : {
-                                latitude  :   superChild.val().coordinates.latitude,
-                                longitude :   superChild.val().coordinates.longitude,
-                            },
-                            cords: superChild.val().cords,
-                            color : superChild.val().color,
-                            laji : superChild.val().laji,
-                            description: superChild.val().description,
-                            diff: superChild.val().diff,
-                            _key: superChild.key
+                      items.push({
+                              title: superChild.val().title,
+                              coordinates : {
+                                  latitude  :   superChild.val().coordinates.latitude,
+                                  longitude :   superChild.val().coordinates.longitude,
+                              },
+                              color : superChild.val().color,
+                              laji : superChild.val().laji,
+                              _key: superChild.key
+                      });
                     });
                 });
             });
-
             this.setState({
                 dataSource  : this.state.dataSource.cloneWithRows(items)
             });
-
         });
    }
 

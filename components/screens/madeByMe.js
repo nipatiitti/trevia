@@ -49,7 +49,7 @@ export default class madeByMe extends Component {
             paddling: require('../../images/paddling.png'),
             ski: require('../../images/ski.png'),
         }
-        this.madeByMarkers = firebaseApp.database().ref('markers/');
+        this.markers = firebaseApp.database().ref('markers/');
     }
 
     static navigationOptions = {
@@ -81,32 +81,30 @@ export default class madeByMe extends Component {
     };
 
     listenForItems() {
-        this.madeByList = firebaseApp.database().ref('users/' + this.state.user.uid + '/made');
-        this.madeByList.on('value', (snap) => {
-            var items = [];
-            snap.forEach((childVar) => {
-                var spesificMarker = this.madeByMarkers.child(childVar.val().key);
-                spesificMarker.once('value', (superChild) => {
+      this.likedList = firebaseApp.database().ref('users/' + this.state.user.uid + '/made');
+      this.likedList.on('value', (snap) => {
+          var items = [];
+          snap.forEach((childVar) => {
+              var spesificMarker = this.markers.child(childVar.val().key);
+              spesificMarker.once('value', (superChild) => {
+                  items.push({
                     items.push({
+                            title: superChild.val().title,
                             coordinates : {
                                 latitude  :   superChild.val().coordinates.latitude,
                                 longitude :   superChild.val().coordinates.longitude,
                             },
-                            cords: superChild.val().cords,
                             color : superChild.val().color,
                             laji : superChild.val().laji,
-                            description: superChild.val().description,
-                            diff: superChild.val().diff,
-                            _key: superChild.key,
-                            title: superChild.val().title,
+                            _key: superChild.key
                     });
-                });
-            });
-
-            this.setState({
-                dataSource  : this.state.dataSource.cloneWithRows(items)
-            });
-        });
+                  });
+              });
+          });
+          this.setState({
+              dataSource  : this.state.dataSource.cloneWithRows(items)
+          });
+      });
    }
 
     _renderRow(rowData, sectionID, rowID) {

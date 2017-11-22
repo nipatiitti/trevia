@@ -140,7 +140,7 @@ export default class mapView extends Component {
             <Marker
               key={marker._key}
    				    coordinate={marker.coordinates}
-              onPress={() => navigate('Marker', { info: marker, cords: this.state.cords })}
+              onPress={() => navigate('Marker', { key: rowData._key, cords: this.state.cords })}
    				    image = {this.state[marker.laji]}
             />
 			    ))}

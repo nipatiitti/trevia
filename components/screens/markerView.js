@@ -9,7 +9,8 @@ import {
   TextInput,
   TouchableOpacity,
   Dimensions,
-  ScrollView
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -28,9 +29,11 @@ export default class markerView extends Component {
     constructor(props) {
         super(props);
         const userData = firebaseApp.auth().currentUser;
+        this.markers = firebaseApp.database().ref('markers/');
 
         this.state = {
           user: userData,
+
           likes: 0,
           icons: {
             like: "thumbs-o-up",
@@ -47,12 +50,22 @@ export default class markerView extends Component {
             latitude: this.props.navigation.state.params.cords.latitude,
             longitude: this.props.navigation.state.params.cords.longitude,
           },
-          markerCords: {
-            latitude: this.props.navigation.state.params.info.coordinates.latitude,
-            longitude: this.props.navigation.state.params.info.coordinates.longitude,
+
+          marker: {
+            title: "",
+            cords : {
+              latitude  :   0.0,
+              longitude :   0.0,
+            },
+            poCords: [],
+            laji : "",
+            color: "",
+            description: "",
+            diff: "",
           },
 
-          poCords: [],
+          loading: true,
+
           length: 0.0,
           distance: 0.0,
 
@@ -65,7 +78,8 @@ export default class markerView extends Component {
         };
 
         this.rootRef = firebaseApp.database().ref();
-        this.likes = this.rootRef.child('likes/' + this.props.navigation.state.params.info._key + '/');
+        this.data = firebaseApp.database().ref('markers/' + this.props.navigation.state.params._key + '/');
+        this.likes = this.rootRef.child('likes/' + this.props.navigation.state.params._key + '/');
         this.mapRef = null;
     }
 
@@ -82,13 +96,6 @@ export default class markerView extends Component {
       this.alreadyFavorit = false;
       this.alreadyLiked = false;
 
-      this.setState({
-        distance: this.getDistance(this.props.navigation.state.params.cords.latitude,
-                                   this.props.navigation.state.params.cords.longitude,
-                                   this.props.navigation.state.params.info.coordinates.latitude,
-                                   this.props.navigation.state.params.info.coordinates.longitude)
-      })
-
       if(this.state.user) {
         this.prep();
       }
@@ -104,6 +111,40 @@ export default class markerView extends Component {
       });
 
     }
+
+    getMarker() {
+      let marker = this.state.marker;
+      this.rootRef.child('markers/').orderByChild('key').equalTo(this.props.navigation.state.params.key).once('value', (snap) => {
+       snap.forEach((child) => {
+         marker.title = child.val().title;
+         marker.cords = {
+           latitude  :   child.val().cords.latitude,
+           longitude :   child.val().cords.longitude,
+         };
+         marker.color = child.val().color;
+         marker.laji = child.val().laji;
+       });
+      });
+
+      this.rootRef.child('data/').orderByChild('key').equalTo(this.props.navigation.state.params.key).once('value', (snap) => {
+       snap.forEach((child) => {
+         marker.poCords = child.val().poCords;
+         marker.description = child.val().description;
+         marker.difficulty = child.val().diff;
+       });
+       this.setState({
+         marker: marker,
+         loading: false,
+         distance: this.getDistance(this.props.navigation.state.params.cords.latitude,
+                                    this.props.navigation.state.params.cords.longitude,
+                                    marker.cords.latitude,
+                                    marker.cords.longitude),
+        length: this.countDistance(marker.poCords).toPrecision(2),
+       });
+      });
+
+
+     }
 
     prep() {
       this.userLiked = this.rootRef.child('users/' + this.state.user.uid + '/liked/');
@@ -137,16 +178,7 @@ export default class markerView extends Component {
         });
     }
 
-    countDistance() {
-      if (this.props.navigation.state.params.info.cords) {
-        var points = this.props.navigation.state.params.info.cords.slice();
-      } else {
-        var points = [];
-      }
-
-      this.setState({
-        poCords: points,
-      });
+    countDistance(points) {
       var length = 0.0;
       for(var i = 1; i < points.length; i++){
         var lat1 = points[i-1].latitude;
@@ -154,11 +186,9 @@ export default class markerView extends Component {
         var lat2 = points[i].latitude;
         var lon2 = points[i].longitude;
 
-        length = length + this.getDistance(lat1,lon1,lat2,lon2);
+        length += this.getDistance(lat1,lon1,lat2,lon2);
       }
-      this.setState({
-        length: length.toPrecision(2)
-      });
+      return length;
     }
 
     componentWillUnmount() {
@@ -190,9 +220,9 @@ export default class markerView extends Component {
     }
 
     onLayout() {
-      if (this.props.navigation.state.params.info.cords) {
+      if (this.state.marker.poCords) {
         this.mapRef.fitToCoordinates(
-          this.props.navigation.state.params.info.cords,
+          this.state.marker.poCords,
           false,
         );
       }
@@ -287,81 +317,89 @@ export default class markerView extends Component {
 
     render() {
         const { params } = this.props.navigation.state;
-        return (
-            <View style={styles.container}>
-                <View style={{
-                    flexDirection: 'row',
-                    margin: 10,
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
-                    borderColor: 'grey',
-                    borderBottomWidth: 1,
-                  }}>
 
-                    <View style={{flex: 2}}>
-                      <Text style={{color: 'black', fontSize: 13, alignSelf: 'center'}}>
-                          <Text style={{fontWeight: 'bold'}}>{this.state.distance}</Text> km away
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <Text style={{color: 'black', fontSize: 13, alignSelf: 'center'}}>
-                          <Text style={{fontWeight: 'bold'}}>{this.state.length}</Text> km long
-                      </Text>
-                    </View>
-                    <View style={{flex: 2}}>
-                      <Text style={{color: 'black', fontSize: 14, fontWeight: 'bold', alignSelf: 'center'}} >
-                          {params.info.diff}
-                      </Text>
-                    </View>
+        const toRender = this.state.loading ?
+        <View>
+          <ActivityIndicator>
+        </View>
+        :
+        <View style={styles.container}>
+            <View style={{
+                flexDirection: 'row',
+                margin: 10,
+                justifyContent: 'space-around',
+                alignItems: 'center',
+                borderColor: 'grey',
+                borderBottomWidth: 1,
+              }}>
 
-                    <TouchableOpacity onPress={() => this._like()} style={{flex: 2, margin: 5}}>
-                      <Text style={{color: 'black', fontSize: 20}}> {this.state.likes} <Icon name={this.state.icons.like} size={30} color={params.info.color} /></Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => this._love()} style={{flex: 1}}>
-                      <Text><Icon name={this.state.icons.fav} size={30} color="gold" /></Text>
-                    </TouchableOpacity>
-
+                <View style={{flex: 2}}>
+                  <Text style={{color: 'black', fontSize: 13, alignSelf: 'center'}}>
+                      <Text style={{fontWeight: 'bold'}}>{this.state.distance}</Text> km away
+                  </Text>
+                </View>
+                <View style={{flex: 2}}>
+                  <Text style={{color: 'black', fontSize: 13, alignSelf: 'center'}}>
+                      <Text style={{fontWeight: 'bold'}}>{this.state.length}</Text> km long
+                  </Text>
+                </View>
+                <View style={{flex: 2}}>
+                  <Text style={{color: 'black', fontSize: 14, fontWeight: 'bold', alignSelf: 'center'}} >
+                      {this.state.marker.info.diff}
+                  </Text>
                 </View>
 
-                <ScrollView contentContainerStyle={{flex: 1}}>
-                  <Text style={{fontSize: 13, margin: 5, color: 'grey'}}>
-                      Description:{"\n"}
-                        <Text style={{fontSize: 16, margin: 5, color: '#404040'}}>
-                          {params.info.description}
-                        </Text>
-                  </Text>
-                </ScrollView>
-
-                <MapView
-                      onLayout = {() => this.onLayout()}
-                      ref={(ref) => { this.mapRef = ref }}
-                      mapType="terrain"
-                      style={{width: width, height: height/2.25}}
-                      region={this.state.region}
-                      onRegionChange={this.onRegionChange.bind(this)}
-                  >
-
-                    <MapView.Polyline
-                      key="polyline"
-                      coordinates={this.state.poCords}
-                      strokeColor="#F00"
-                      fillColor="rgba(255,0,0,0.5)"
-                      strokeWidth={1}
-                    />
-
-                    <MapView.Marker
-                      coordinate={this.state.cords}
-                      image={require('../../images/locationmarker.png')}
-                    />
-
-                    <MapView.Marker
-                      coordinate={params.info.coordinates}
-                      image={this.state[params.info.laji]}
-                    />
-
-                  </MapView>
+                <TouchableOpacity onPress={() => this._like()} style={{flex: 2, margin: 5}}>
+                  <Text style={{color: 'black', fontSize: 20}}> {this.state.likes} <Icon name={this.state.icons.like} size={30} color={this.state.marker.info.color} /></Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this._love()} style={{flex: 1}}>
+                  <Text><Icon name={this.state.icons.fav} size={30} color="gold" /></Text>
+                </TouchableOpacity>
 
             </View>
+
+            <ScrollView contentContainerStyle={{flex: 1}}>
+              <Text style={{fontSize: 13, margin: 5, color: 'grey'}}>
+                  Description:{"\n"}
+                    <Text style={{fontSize: 16, margin: 5, color: '#404040'}}>
+                      {this.state.marker.description}
+                    </Text>
+              </Text>
+            </ScrollView>
+
+            <MapView
+                  onLayout = {() => this.onLayout()}
+                  ref={(ref) => { this.mapRef = ref }}
+                  mapType="terrain"
+                  style={{width: width, height: height/2.25}}
+                  region={this.state.region}
+                  onRegionChange={this.onRegionChange.bind(this)}
+              >
+
+                <MapView.Polyline
+                  key="polyline"
+                  coordinates={this.state.poCords}
+                  strokeColor="#F00"
+                  fillColor="rgba(255,0,0,0.5)"
+                  strokeWidth={1}
+                />
+
+                <MapView.Marker
+                  coordinate={this.state.cords}
+                  image={require('../../images/locationmarker.png')}
+                />
+
+                <MapView.Marker
+                  coordinate={params.info.coordinates}
+                  image={this.state[params.info.laji]}
+                />
+
+              </MapView>
+
+        </View>
+
+        return (
+
         );
     }
 }

@@ -23,6 +23,7 @@ import signIn from './components/screens/signin';
 import settings from './components/screens/settings';
 import markerView from './components/screens/markerView';
 import addView from './components/screens/addView';
+import poCords from './components/screens/poCords'
 import favorites from './components/screens/favorites';
 import liked from './components/screens/liked';
 import madeByMe from './components/screens/madeByMe';
@@ -52,6 +53,7 @@ const TreviaApp = StackNavigator({
 		SignIn: { screen: signIn },
 		//Menu: { screen: menu },
 		LogIn: { screen: logIn},
+    Cords: {screen: poCords},
 		Add: { screen: addView },
 		Favorites: { screen: favorites},
 		Liked: { screen: liked},

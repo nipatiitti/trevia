@@ -119,15 +119,12 @@ export default class mainView extends Component {
          snap.forEach((child) => {
            items.push({
              title: child.val().title,
-             coordinates : {
+             cords : {
                latitude  :   child.val().coordinates.latitude,
                longitude :   child.val().coordinates.longitude,
              },
-             cords: child.val().cords,
              color : child.val().color,
              laji : child.val().laji,
-             description: child.val().description,
-             diff: child.val().diff,
              _key: child.key
            });
          });
@@ -234,7 +231,7 @@ export default class mainView extends Component {
     _renderRow(rowData, sectionID, rowID) {
         return (
             <View style={styles.rowStyle}>
-              <TouchableOpacity style={styles.row} onPress={() => this.props.navigation.navigate('Marker', { info: rowData, cords: this.state.cords })}>
+              <TouchableOpacity style={styles.row} onPress={() => this.props.navigation.navigate('Marker', { key: rowData._key, cords: this.state.cords })}>
                 <Image style={{width: 20, height: 22}} source={this.state[rowData.laji]} />
                 <Text>  {rowData.title}, </Text>
                 <Text style={{color : rowData.color}}>
