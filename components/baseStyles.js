@@ -44,8 +44,16 @@ module.exports = StyleSheet.create({
     borderRadius    : 5,
   },
 
+  transparentBackground: {
+    backgroundColor: 'transparent'
+  },
+
   buttonText: {
     color: colors.white
+  },
+
+  greyText: {
+    color: colors.grey,
   },
 
   flex: {
@@ -58,6 +66,14 @@ module.exports = StyleSheet.create({
 
   text: {
     color: colors.black,
+  },
+
+  size10: {
+    fontSize: 10,
+  },
+
+  textBold: {
+    fontWeight: 'bold',
   },
 
   textMiddle: {
@@ -93,6 +109,10 @@ module.exports = StyleSheet.create({
 
   spaceCenter: {
     justifyContent: 'center',
+  },
+
+  end: {
+    justifyContent: 'flex-end'
   },
 
   textInput: {

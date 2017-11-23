@@ -23,7 +23,7 @@ const backAction = NavigationActions.back();
 
 var { width, height } = Dimensions.get('window');
 
-export default class madeByMe extends Component {
+export default class lists extends Component {
 
     constructor(props) {
         super(props);
@@ -33,12 +33,15 @@ export default class madeByMe extends Component {
                 rowHasChanged : (row1, row2) => true
             }),
 
-            coordinates : {
-                latitude  :   0,
-                longitude :   0
+            cords : {
+                latitude  :   0.0,
+                longitude :   0.0
             },
 
             user: userData,
+            loading: true,
+
+            link: this.props.navigation.state.params.link,
 
             text: "",
 
@@ -52,20 +55,17 @@ export default class madeByMe extends Component {
         this.markers = firebaseApp.database().ref('markers/');
     }
 
-    static navigationOptions = {
-        title: 'Made By Me',
+    static navigationOptions = ({ navigation }) => ({
+        title: `${navigation.state.params.link}`,
         headerStyle: {backgroundColor: 'black'},
         headerTintColor: 'white',
-    };
+    });
 
-    componentDidMount() {
-
-        this.listenForItems()
-
+    async componentDidMount() {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             this.setState({
-                coordinates : {
+                cords : {
                   latitude  :   position.coords.latitude,
                   longitude :   position.coords.longitude
                 },
@@ -74,19 +74,29 @@ export default class madeByMe extends Component {
             (error) => alert(error.message),
         {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
       );
+
+      await this.listenForItems();
     }
 
     componentWillUnmount() {
 
     };
 
-    listenForItems() {
-      this.likedList = firebaseApp.database().ref('users/' + this.state.user.uid + '/made');
-      this.likedList.once('value', (snap) => {
-        var items = [];
-        snap.forEach((childVar) => {
-          var spesificMarker = this.markers.child(childVar.val().key);
-          spesificMarker.once('value', (child) => {
+    async listenForItems() {
+        let likedList = firebaseApp.database().ref('users/' + this.state.user.uid + '/'+this.state.link);
+        let keys = [];
+        let items = [];
+
+        await likedList.once('value', (snap) => {
+          snap.forEach((childVar) => {
+            keys.push(childVar.val().key)
+          });
+        });
+
+        console.log(keys + ", keys");
+
+        for(let key of keys){
+          await firebaseApp.database().ref('markers/' + key).once('value', (child) => {
             items.push({
               title: child.val().title,
               cords : child.val().cords,
@@ -95,25 +105,28 @@ export default class madeByMe extends Component {
               _key: child.key
             });
           });
-        });
+        }
+
+        console.log(items + ", items");
+
         this.setState({
-          dataSource  : this.state.dataSource.cloneWithRows(items)
+          dataSource  : this.state.dataSource.cloneWithRows(items),
+          loading : false
         });
-      });
    }
 
     _renderRow(rowData, sectionID, rowID) {
         const { navigate } = this.props.navigation;
         return (
           <View style={styles.rowStyle}>
-            <TouchableOpacity style={styles.row} onPress={() => this.props.navigation.navigate('Marker', { key: rowData._key, cords: this.state.cords, title: rowData.title })}>
+            <TouchableOpacity style={styles.row} onPress={() => navigate('Marker', { key: rowData._key, cords: this.state.cords, title: rowData.title })}>
               <Image style={{width: 20, height: 22}} source={this.state[rowData.laji]} />
               <Text>  {rowData.title}, </Text>
               <Text style={{color : rowData.color}}>
                 {this.getDistance(  this.state.cords.latitude,
                                     this.state.cords.longitude,
-                                    rowData.coordinates.latitude,
-                                    rowData.coordinates.longitude
+                                    rowData.cords.latitude,
+                                    rowData.cords.longitude
                                   )} km
               </Text>
             </TouchableOpacity>
@@ -142,15 +155,24 @@ export default class madeByMe extends Component {
 
     render() {
         const {navigate} = this.props.navigation;
+
+        const toRender = this.state.loading?
+          <View style={[styles.row, styles.spaceAround]}>
+            <ActivityIndicator/>
+          </View>
+          :
+          <View style={styles.listView}>
+              <ListView
+                  enableEmptySections={true}
+                  dataSource={this.state.dataSource}
+                  renderRow={this._renderRow.bind(this)}
+              />
+          </View>
+          ;
+
         return (
             <View style={styles.container}>
-                <View   style={styles.listView}>
-                    <ListView
-                        enableEmptySections={true}
-                        dataSource={this.state.dataSource}
-                        renderRow={this._renderRow.bind(this)}
-                    />
-                </View>
+              {toRender}
             </View>
         );
     }

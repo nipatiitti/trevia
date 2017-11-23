@@ -87,17 +87,17 @@ export default class logIn extends Component {
                 <View style={[styles.container, styles.spaceAround]}>
                     <Text style={[styles.margin, styles.textMiddle]}>Logged in as: {this.state.user.email} </Text>
 
-                    <TouchableOpacity style={[styles.row, styles.settingsButton, styles.roundBorder]} onPress={() => navigate('Favorites')}>
+                    <TouchableOpacity style={[styles.row, styles.settingsButton, styles.roundBorder]} onPress={() => navigate('Lists', {link: 'favorites'})}>
                         <Text style={styles.text}><Icon name="star" size={30} color="gold" />   Favorites</Text>
                         <Text style={[styles.text, styles.textRight]}><Icon name="angle-right" size={30} color="black" /></Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.row, styles.settingsButton, styles.roundBorder]} onPress={() => navigate('Liked')}>
+                    <TouchableOpacity style={[styles.row, styles.settingsButton, styles.roundBorder]} onPress={() => navigate('Lists', {link: 'liked'})}>
                         <Text style={styles.basicText}><Icon name="thumbs-o-up" size={30} color="black" />   Liked</Text>
                         <Text style={[styles.text, styles.textRight]}><Icon name="angle-right" size={30} color="black" /></Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.row, styles.settingsButton, styles.roundBorder]} onPress={() => navigate('MadeByMe')}>
+                    <TouchableOpacity style={[styles.row, styles.settingsButton, styles.roundBorder]} onPress={() => navigate('Lists', {link: 'made'})}>
                         <Text style={styles.basicText}><Icon name="user-o" size={30} color="black" />   Made by me</Text>
                         <Text style={[styles.text, styles.textRight]}><Icon name="angle-right" size={30} color="black" /></Text>
                     </TouchableOpacity>

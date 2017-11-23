@@ -27,6 +27,7 @@ export default class mainView extends Component {
             }),
 
             userIn: false,
+            loading: true,
 
             text: "",
 
@@ -64,9 +65,9 @@ export default class mainView extends Component {
       });
 
       try {
-        let longitude = await AsyncStorage.getItem('@trevia:latitude');
+        let latitude = await AsyncStorage.getItem('@trevia:latitude');
         if (latitude !== null){
-          console.log(value)
+          console.log(latitude)
         } else {
           await AsyncStorage.setItem('@trevia:latitude', 0.0);
           latitude = 0.0;
@@ -74,7 +75,7 @@ export default class mainView extends Component {
 
         var longitude = await AsyncStorage.getItem('@trevia:longitude');
         if (longitude !== null){
-          console.log(value);
+          console.log(longitude);
         } else {
           await AsyncStorage.setItem('@trevia:longitude', 0.0);
           longitude = 0.0;
@@ -87,7 +88,7 @@ export default class mainView extends Component {
           },
         })
       } catch (error) {
-        console.log(error);
+        console.log(error + ", In mainView");
       }
 
       this.watchID = navigator.geolocation.watchPosition(
@@ -119,10 +120,7 @@ export default class mainView extends Component {
          snap.forEach((child) => {
            items.push({
              title: child.val().title,
-             cords : {
-               latitude  :   child.val().coordinates.latitude,
-               longitude :   child.val().coordinates.longitude,
-             },
+             cords : child.val().cords,
              color : child.val().color,
              laji : child.val().laji,
              _key: child.key
@@ -130,6 +128,7 @@ export default class mainView extends Component {
          });
          this.setState({
           data: items,
+          loading: false,
          })
          this._refresh();
         });
@@ -144,14 +143,14 @@ export default class mainView extends Component {
             a = this.getDistance(
                                     this.state.cords.latitude,
                                     this.state.cords.longitude,
-                                    a.coordinates.latitude,
-                                    a.coordinates.longitude
+                                    a.cords.latitude,
+                                    a.cords.longitude
                                 );
             b = this.getDistance(
                                     this.state.cords.latitude,
                                     this.state.cords.longitude,
-                                    b.coordinates.latitude,
-                                    b.coordinates.longitude
+                                    b.cords.latitude,
+                                    b.cords.longitude
                                 );
             if (a < b) {
                 return -1;
@@ -194,7 +193,7 @@ export default class mainView extends Component {
                         <Text style = {styles.textMiddle}><Icon name="user" size={30} color="black" /></Text>
                     </TouchableOpacity>;
 
-        let loading = this.state.data.length ?
+        let loading = !this.state.loading ?
                     <TouchableOpacity onPress = {() => navigate( 'Map', { cords: this.state.cords, items: this.state.data })} style = {styles.flex}>
                       <Text style = {styles.textMiddle}><Icon name="map" size={30} color="black" /></Text>
                     </TouchableOpacity>
@@ -207,7 +206,7 @@ export default class mainView extends Component {
 
             {loading}
 
-            <TouchableOpacity onPress = {() => navigate('Add')} style = {styles.flex} >
+            <TouchableOpacity onPress = {() => navigate('Cords', {cords: this.state.cords})} style = {styles.flex} >
               <Text style = {styles.textMiddle}><Icon name="plus" size={30} color="black" /></Text>
             </TouchableOpacity>
           </View>
@@ -231,14 +230,14 @@ export default class mainView extends Component {
     _renderRow(rowData, sectionID, rowID) {
         return (
             <View style={styles.rowStyle}>
-              <TouchableOpacity style={styles.row} onPress={() => this.props.navigation.navigate('Marker', { key: rowData._key, cords: this.state.cords })}>
+              <TouchableOpacity style={styles.row} onPress={() => this.props.navigation.navigate('Marker', { key: rowData._key, cords: this.state.cords, title: rowData.title })}>
                 <Image style={{width: 20, height: 22}} source={this.state[rowData.laji]} />
                 <Text>  {rowData.title}, </Text>
                 <Text style={{color : rowData.color}}>
                   {this.getDistance(  this.state.cords.latitude,
                                       this.state.cords.longitude,
-                                      rowData.coordinates.latitude,
-                                      rowData.coordinates.longitude
+                                      rowData.cords.latitude,
+                                      rowData.cords.longitude
                                     )} km
                 </Text>
               </TouchableOpacity>

@@ -21,6 +21,7 @@ import { MapView } from 'expo';
 import styles from '../baseStyles.js';
 import firebaseApp from '../firebase.js';
 import Polyline from '@mapbox/polyline';
+import { NavigationActions } from 'react-navigation';
 
 var { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -31,6 +32,13 @@ const LONGITUDE = 22.3027;
 const LATITUDE_DELTA = 0.01;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 let id = 0;
+
+const resetAction = NavigationActions.reset({
+  index: 0,
+  actions: [
+    NavigationActions.navigate({ routeName: 'Main'})
+  ]
+})
 
 export default class addView extends Component {
 
@@ -75,22 +83,19 @@ export default class addView extends Component {
       }
 
       if(  this.state.title == ""
-        || isNaN(parseFloat(this.props.navigation.params.cords.latitude))
-        || isNaN(parseFloat(this.props.navigation.params.cords.longitude))
+        || isNaN(parseFloat(this.props.navigation.state.params.cords.latitude))
+        || isNaN(parseFloat(this.props.navigation.state.params.cords.longitude))
         || this.state.laji == ""
         || this.state.esittely == ""
         || this.state.diff == ""
-        || this.props.navigation.params.poCords.length <= 0) {
+        || this.props.navigation.state.params.poCords.length <= 0) {
           alert('You have one or more empty fields!');
           return
       }
 
       this.items.push({
         title :   this.state.title,
-        cords : {
-          latitude  :   parseFloat(this.state.coordinates.latitude),
-          longitude :   parseFloat(this.state.coordinates.longitude)
-        },
+        cords : this.props.navigation.state.params.cords,
         color : this._getColor(this.state.laji),
         laji : this.state.laji,
         madeBy: this.state.user.email,
@@ -101,15 +106,15 @@ export default class addView extends Component {
             key: snap.key
           });
 
-          this.root.child('data/' + snap.key).push({
+          this.root.child('data/' + snap.key).set({
             description: this.state.esittely,
-            poCords: this.props.navigation.params.poCords,
+            poCords: this.props.navigation.state.params.poCords,
             difficulty: this.state.diff
           });
       });
 
       alert("Added marker " + this.state.title + " Succesfully");
-      this.props.navigation.goBack();
+      this.props.navigation.dispatch(resetAction);
     }
 
     _getColor(laji) {
@@ -182,11 +187,11 @@ export default class addView extends Component {
 
         const picker = Platform.OS == 'ios' ?
                     <View>
-                      <TouchableOpacity onPress={() => this.showActionSheetSport()} style={styles.button}
+                      <TouchableOpacity onPress={() => this.showActionSheetSport()} style={styles.button}>
                         <Text style={styles.buttonText}>Pick a sport: {this.state.laji}</Text>
                       </TouchableOpacity>
 
-                      <TouchableOpacity onPress={() => this.showActionSheetDifficulty()} style={styles.button}
+                      <TouchableOpacity onPress={() => this.showActionSheetDifficulty()} style={styles.button}>
                         <Text style={styles.buttonText}>Pick difficulty: {this.state.diff}</Text>
                       </TouchableOpacity>
                     </View>
@@ -219,7 +224,7 @@ export default class addView extends Component {
         return (
             <View style={styles.container} >
               <TextInput
-                style={styles.textInput}
+                style={[styles.textInput, styles.roundBorder]}
                 onChangeText={(text) => this.setState({title: text})}
                 value={this.state.title}
                 returnKeyType = 'next'
@@ -227,7 +232,7 @@ export default class addView extends Component {
                 placeholder={"Name..."} />
 
               <TextInput
-                style={styles.textInput}
+                style={[styles.row, styles.textInput, styles.roundBorder]}
                 value={this.state.esittely}
                 multiline = {true}
                 numberOfLines = {4}

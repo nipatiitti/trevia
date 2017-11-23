@@ -139,8 +139,8 @@ export default class mapView extends Component {
           {this.state.items.map(marker => (
             <Marker
               key={marker._key}
-   				    coordinate={marker.coordinates}
-              onPress={() => navigate('Marker', { key: rowData._key, cords: this.state.cords })}
+   				    coordinate={marker.cords}
+              onPress={() => navigate('Marker', { key: marker._key, cords: this.state.cords, title: marker.title })}
    				    image = {this.state[marker.laji]}
             />
 			    ))}

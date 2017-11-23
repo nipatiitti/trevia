@@ -76,26 +76,23 @@ export default class favorites extends Component {
 
     listenForItems() {
       this.likedList = firebaseApp.database().ref('users/' + this.state.user.uid + '/favorites');
-      this.likedList.on('value', (snap) => {
-          var items = [];
-          snap.forEach((childVar) => {
-              var spesificMarker = this.markers.child(childVar.val().key);
-              spesificMarker.once('value', (superChild) => {
-                  items.push({
-                          title: superChild.val().title,
-                          coordinates : {
-                              latitude  :   superChild.val().coordinates.latitude,
-                              longitude :   superChild.val().coordinates.longitude,
-                          },
-                          color : superChild.val().color,
-                          laji : superChild.val().laji,
-                          _key: superChild.key
-                  });
-              });
+      this.likedList.once('value', (snap) => {
+        var items = [];
+        snap.forEach((childVar) => {
+          var spesificMarker = this.markers.child(childVar.val().key);
+          spesificMarker.once('value', (child) => {
+            items.push({
+              title: child.val().title,
+              cords : child.val().cords,
+              color : child.val().color,
+              laji : child.val().laji,
+              _key: child.key
+            });
           });
-          this.setState({
-              dataSource  : this.state.dataSource.cloneWithRows(items)
-          });
+        });
+        this.setState({
+          dataSource  : this.state.dataSource.cloneWithRows(items)
+        });
       });
    }
 
@@ -122,7 +119,7 @@ export default class favorites extends Component {
    _renderRow(rowData, sectionID, rowID) {
        return (
            <View style={styles.rowStyle}>
-             <TouchableOpacity style={styles.row} onPress={() => this.props.navigation.navigate('Marker', { info: rowData, cords: this.state.cords })}>
+             <TouchableOpacity style={styles.row} onPress={() => this.props.navigation.navigate('Marker', { key: rowData._key, cords: this.state.cords, title: rowData.title })}>
                <Image style={{width: 20, height: 22}} source={this.state[rowData.laji]} />
                <Text>  {rowData.title}, </Text>
                <Text style={{color : rowData.color}}>
