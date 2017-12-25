@@ -1,5 +1,6 @@
 import * as firebase from 'firebase';
 
+
 const config = {
     apiKey: "AIzaSyAt_iFQhHRtLLXm0GmgXtwwbsvVC1aKArY",
     authDomain: "treviaapp.firebaseapp.com",
