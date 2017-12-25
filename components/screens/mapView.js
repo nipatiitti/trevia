@@ -145,12 +145,7 @@ export default class mapView extends Component {
             />
 			    ))}
         </MapView>
-
-	      <View style={styles.bottom}>
-          <Text style={styles.textMiddle}>
-            {`${this.state.region.latitude.toPrecision(7)}, ${this.state.region.longitude.toPrecision(7)}`}
-          </Text>
-        </View>
+        
    	</View>
    );
  }
